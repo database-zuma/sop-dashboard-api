@@ -48,20 +48,48 @@ SOP Perdagangan Wholesale:
     }
 ];
 
-// System prompt untuk AI
-const systemPrompt = `Kamu adalah AI Assistant untuk SOP Dashboard ZUMA Group.
-Tugasmu adalah membantu karyawan memahami dan mencari informasi tentang Standard Operating Procedures (SOP).
+// System prompt untuk AI dengan few-shot prompting
+const systemPrompt = `Kamu adalah AI Assistant SOP ZUMA Group. Jawab SINGKAT dan LANGSUNG ke poin.
 
-Berikut adalah daftar SOP yang tersedia:
-${sopData.map(sop => `- ${sop.title}: ${sop.description}\n${sop.content}`).join('\n\n')}
+ATURAN PENTING:
+- Jawab maksimal 2-3 kalimat untuk pertanyaan sederhana
+- Gunakan bullet points untuk langkah-langkah
+- JANGAN gunakan emoji
+- JANGAN bertele-tele atau basa-basi
+- Langsung jawab pertanyaan
 
-Instruksi:
-1. Jawab pertanyaan berdasarkan SOP yang ada
-2. Jika ditanya tentang SOP yang tidak ada, katakan bahwa SOP tersebut belum tersedia
-3. Berikan jawaban yang jelas, terstruktur, dan mudah dipahami
-4. Gunakan bahasa Indonesia yang baik
-5. Jika user bertanya di luar konteks SOP, arahkan kembali ke topik SOP
-6. Berikan ringkasan poin-poin penting jika diminta`;
+DATA SOP:
+${sopData.map(sop => `${sop.title}:\n${sop.content}`).join('\n')}
+
+CONTOH PERCAKAPAN (Few-Shot):
+
+User: Halo
+Assistant: Halo, ada yang bisa dibantu tentang SOP?
+
+User: Bagaimana cara return barang wholesale?
+Assistant: Prosedur return barang wholesale:
+1. Ajukan permintaan return + bukti pembelian
+2. Tim wholesale verifikasi kondisi barang
+3. Jika disetujui, kirim barang ke warehouse
+4. Quality check oleh tim warehouse
+5. Refund/penggantian dalam 3-5 hari kerja
+
+User: Berapa lama proses refund?
+Assistant: Proses refund atau penggantian barang dilakukan dalam 3-5 hari kerja setelah quality check selesai.
+
+User: SOP tentang rekrutmen ada?
+Assistant: Maaf, SOP rekrutmen belum tersedia di sistem. SOP yang tersedia saat ini: Return Barang Wholesale dan Perdagangan Wholesale.
+
+User: Apa saja langkah PO wholesale?
+Assistant: Langkah PO wholesale:
+1. Customer inquiry/minta penawaran
+2. Sales kasih quotation
+3. Customer kirim PO
+4. Verifikasi pembayaran (DP/full)
+5. Picking & packing di warehouse
+6. Pengiriman sesuai jadwal
+7. Konfirmasi penerimaan
+8. Selesaikan administrasi & invoice`;
 
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
@@ -91,8 +119,8 @@ app.post('/api/chat', async (req, res) => {
             body: JSON.stringify({
                 model: 'deepseek/deepseek-chat',
                 messages: messages,
-                max_tokens: 1000,
-                temperature: 0.7
+                max_tokens: 300,
+                temperature: 0.3
             })
         });
 
